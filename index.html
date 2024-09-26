@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OriginsPlayerMusic</title>
+    <!-- Importación de Material Design Icons -->
+    <link
+      href="https://cdn.materialdesignicons.com/5.4.55/css/materialdesignicons.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        font-family: "Arial", sans-serif;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 20px;
+        background-color: #6200ea;
+        color: white;
+      }
+
+      header h1 {
+        margin-left: -60px; /* Ajuste de posición para centrado */
+        font-size: 24px;
+      }
+
+      header .logo {
+        font-size: 36px;
+      }
+
+      main {
+        display: flex;
+        flex-grow: 1;
+        padding: 20px;
+        justify-content: space-between;
+      }
+
+      .playlist {
+        width: 100%;
+        max-width: 400px;
+      }
+
+      .playlist-item {
+        margin-bottom: 20px;
+      }
+
+      .playlist-item h4 {
+        margin-bottom: 5px;
+        font-size: 16px;
+        color: #333;
+      }
+
+      audio {
+        width: 100%;
+      }
+
+      .survey {
+        width: 300px;
+        background-color: #f5f5f5;
+        padding: 20px;
+        border-radius: 8px;
+      }
+
+      .survey h3 {
+        margin-bottom: 10px;
+      }
+
+      .survey button {
+        background-color: #6200ea;
+        color: white;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+        border-radius: 5px;
+      }
+
+      .survey button:hover {
+        background-color: #3700b3;
+      }
+
+      canvas {
+        margin-top: 20px;
+        width: 100%;
+      }
+
+      footer {
+        background-color: #6200ea;
+        color: white;
+        text-align: center;
+        padding: 10px 0;
+        position: fixed;
+        width: 100%;
+        bottom: 0;
+      }
+
+      /* Diseño responsivo */
+      @media (max-width: 768px) {
+        header h1 {
+          font-size: 20px;
+        }
+
+        header .logo {
+          font-size: 30px;
+        }
+
+        main {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .survey {
+          margin-top: 20px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        header h1 {
+          font-size: 18px;
+        }
+
+        header .logo {
+          font-size: 28px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header con Logo y Título -->
+    <header>
+      <span class="mdi mdi-music-box-multiple logo"></span>
+      <h1>OriginsPlayerMusic</h1>
+    </header>
+
+    <!-- Contenido principal: Reproductor de música y encuesta -->
+    <main>
+      <div class="playlist">
+        <div class="playlist-item">
+          <h4>Santo</h4>
+          <audio controls>
+            <source src="santo2.mp3" type="audio/mp3" />
+            Tu navegador no soporta el elemento de audio.
+          </audio>
+        </div>
+        <div class="playlist-item">
+          <h4>Padre Nuestro</h4>
+          <audio controls>
+            <source src="PadreNuestro1.mp3" type="audio/mp3" />
+            Tu navegador no soporta el elemento de audio.
+          </audio>
+        </div>
+        <div class="playlist-item">
+          <h4>Padre Nuestro</h4>
+          <audio controls>
+            <source src="PadreNuestro2.mp3" type="audio/mp3" />
+            Tu navegador no soporta el elemento de audio.
+          </audio>
+        </div>
+      </div>
+
+      <!-- Encuesta sobre la canción favorita -->
+      <div class="survey">
+        <h3>¿Cuál es tu canción favorita?</h3>
+        <label><input type="radio" name="song" value="song1" /> Canción 1</label
+        ><br />
+        <label><input type="radio" name="song" value="song2" /> Canción 2</label
+        ><br />
+        <label><input type="radio" name="song" value="song3" /> Canción 3</label
+        ><br /><br />
+        <button id="voteBtn">Votar</button>
+
+        <!-- Gráfico circular -->
+        <canvas id="surveyChart" width="300" height="300"></canvas>
+      </div>
+    </main>
+
+    <!-- Footer fijo -->
+    <footer>
+      <p>®OM 2024</p>
+    </footer>
+
+    <script>
+      // Seleccionamos todos los elementos de audio
+      const audios = document.querySelectorAll("audio");
+
+      audios.forEach((audio) => {
+        audio.addEventListener("play", () => {
+          // Detenemos todos los audios excepto el que fue activado
+          audios.forEach((otherAudio) => {
+            if (otherAudio !== audio) {
+              otherAudio.pause();
+              otherAudio.currentTime = 0; // Reinicia el otro audio
+            }
+          });
+        });
+      });
+
+      // Variables para contar los votos
+      let votes = {
+        song1: 0,
+        song2: 0,
+        song3: 0,
+      };
+
+      // Función para actualizar el gráfico
+      function updateChart() {
+        const ctx = document.getElementById("surveyChart").getContext("2d");
+        const totalVotes = votes.song1 + votes.song2 + votes.song3;
+
+        const data = {
+          datasets: [
+            {
+              data: [votes.song1, votes.song2, votes.song3],
+              backgroundColor: ["#ff6384", "#36a2eb", "#cc65fe"],
+            },
+          ],
+          labels: ["Canción 1", "Canción 2", "Canción 3"],
+        };
+
+        // Dibujamos el gráfico circular
+        new Chart(ctx, {
+          type: "pie",
+          data: data,
+        });
+      }
+
+      // Al hacer clic en votar
+      document.getElementById("voteBtn").addEventListener("click", () => {
+        const selectedSong = document.querySelector(
+          'input[name="song"]:checked'
+        );
+
+        if (selectedSong) {
+          // Incrementamos el voto de la canción seleccionada
+          votes[selectedSong.value]++;
+          // Actualizamos el gráfico
+          updateChart();
+        } else {
+          alert("Por favor, selecciona una canción.");
+        }
+      });
+
+      // Inicialización del gráfico vacío
+      updateChart();
+    </script>
+
+    <!-- Importamos Chart.js para los gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </body>
+</html>
